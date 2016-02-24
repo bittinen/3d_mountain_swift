@@ -16,6 +16,8 @@ class GameViewController: NSViewController {
     var verts = [SCNVector3]()
     var colors = [SCNVector3]()
     var first = true;
+    let size = 4
+    var primitives = 0
     
     internal func calcuN(A:SCNVector3, B:SCNVector3, C:SCNVector3)->SCNVector3
     {
@@ -40,7 +42,7 @@ class GameViewController: NSViewController {
         var y = 0
         if first {
             first = false
-            y = 6;
+            y = size;
             verts.append(A)
             verts.append(C)
             verts.append(B)
@@ -51,6 +53,7 @@ class GameViewController: NSViewController {
             colors.append(SCNVector3(0.0, 0.1, 0.0))
             colors.append(SCNVector3(0.0, 0.1, 0.0))
             colors.append(SCNVector3(0.0, 0.1, 0.0))
+            primitives++
 
         }
         let p1 = CGFloat((arc4random_uniform(20)+90)/100)
@@ -70,6 +73,7 @@ class GameViewController: NSViewController {
         colors.append(SCNVector3(0.0, 0.0, 1.0))
         colors.append(SCNVector3(0.0, 0.0, 1.0))
         colors.append(SCNVector3(1.0, 0.0, 1.0))
+        primitives++
         
         verts.append(A)
         verts.append(P)
@@ -81,6 +85,7 @@ class GameViewController: NSViewController {
         colors.append(SCNVector3(0.0, 0.0, 1.0))
         colors.append(SCNVector3(1.0, 0.0, 1.0))
         colors.append(SCNVector3(0.0, 0.0, 1.0))
+        primitives++
         
         verts.append(P)
         verts.append(B)
@@ -92,13 +97,14 @@ class GameViewController: NSViewController {
         colors.append(SCNVector3(1.0, 0.0, 1.0))
         colors.append(SCNVector3(0.0, 0.0, 1.0))
         colors.append(SCNVector3(0.0, 0.0, 1.0))
+        primitives++
     }
     
     override func awakeFromNib(){
         // create a new scene
         let a = SCNVector3(x: 0,y: 0,z: 0)
-        let b = SCNVector3(x: 6,y: 0,z: 0)
-        let c = SCNVector3(x: 0,y: 6,z: 0)
+        let b = SCNVector3(x: CGFloat(size),y: 0,z: 0)
+        let c = SCNVector3(x: CGFloat(size/2),y: CGFloat(size),z: 0)
         re(a,B:b,C:c)
 
         let src = SCNGeometrySource(vertices: &verts, count: verts.count)
@@ -108,7 +114,11 @@ class GameViewController: NSViewController {
         
         let norm = SCNGeometrySource(normals: &norms, count: norms.count)
         
-        let indexes: [CInt] = [0,1,2,3,4,5,6,7,8,9,10,11] // Changed to CInt
+        var indexes = [CInt]() // Changed to CInt
+        for var i=0; i < verts.count; i++ {
+            indexes.append(CInt(i))
+        }
+        
         let dat  = NSData(
             bytes: indexes,
             length: sizeof(CInt) * indexes.count // Changed to size of CInt * count
@@ -116,7 +126,7 @@ class GameViewController: NSViewController {
         let ele = SCNGeometryElement(
             data: dat,
             primitiveType: .Triangles,
-            primitiveCount: 4,
+            primitiveCount: primitives,
             bytesPerIndex: sizeof(CInt) // Changed to CInt
         )
         let geo = SCNGeometry(sources: [src, norm, colorSource], elements: [ele])
