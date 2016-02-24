@@ -41,6 +41,17 @@ class GameViewController: NSViewController {
         if first {
             first = false
             y = 6;
+            verts.append(A)
+            verts.append(C)
+            verts.append(B)
+            let n = calcuN(A,B:B,C:C)
+            norms.append(n)
+            norms.append(n)
+            norms.append(n)
+            colors.append(SCNVector3(0.0, 0.1, 0.0))
+            colors.append(SCNVector3(0.0, 0.1, 0.0))
+            colors.append(SCNVector3(0.0, 0.1, 0.0))
+
         }
         let p1 = CGFloat((arc4random_uniform(20)+90)/100)
         let p2 = CGFloat((arc4random_uniform(20)+90)/100)
@@ -51,38 +62,53 @@ class GameViewController: NSViewController {
         
         verts.append(A)
         verts.append(B)
+        verts.append(P)
+        let n1 = calcuN(A,B:B,C:P)
+        norms.append(n1)
+        norms.append(n1)
+        norms.append(n1)
+        colors.append(SCNVector3(0.0, 0.0, 1.0))
+        colors.append(SCNVector3(0.0, 0.0, 1.0))
+        colors.append(SCNVector3(1.0, 0.0, 1.0))
         
+        verts.append(A)
+        verts.append(P)
+        verts.append(C)
+        let n2 = calcuN(A,B:P,C:C)
+        norms.append(n2)
+        norms.append(n2)
+        norms.append(n2)
+        colors.append(SCNVector3(0.0, 0.0, 1.0))
+        colors.append(SCNVector3(1.0, 0.0, 1.0))
+        colors.append(SCNVector3(0.0, 0.0, 1.0))
         
+        verts.append(P)
+        verts.append(B)
+        verts.append(C)
+        let n3 = calcuN(P,B:B,C:C)
+        norms.append(n3)
+        norms.append(n3)
+        norms.append(n3)
+        colors.append(SCNVector3(1.0, 0.0, 1.0))
+        colors.append(SCNVector3(0.0, 0.0, 1.0))
+        colors.append(SCNVector3(0.0, 0.0, 1.0))
     }
     
     override func awakeFromNib(){
         // create a new scene
-        var verts = [SCNVector3(x: 0,y: 0,z: 0),SCNVector3(x: 6,y: 0,z: 0),SCNVector3(x: 0,y: 6,z: 0), SCNVector3(x: 0,y: 0,z: -6)]
-        
+        let a = SCNVector3(x: 0,y: 0,z: 0)
+        let b = SCNVector3(x: 6,y: 0,z: 0)
+        let c = SCNVector3(x: 0,y: 6,z: 0)
+        re(a,B:b,C:c)
 
-        let src = SCNGeometrySource(vertices: &verts, count: 4)
-
-        // Colors
-        let colors: [SCNVector3] = [SCNVector3(1, 0, 1.0),SCNVector3(1, 1, 0.0),SCNVector3(1, 0, 0.0),
-            SCNVector3(0, 1, 0),SCNVector3(0, 1, 0),SCNVector3(0, 1, 0),
-            SCNVector3(0.0, 0.0, 1.0),SCNVector3(0.0, 0.0, 1.0),SCNVector3(0.0, 0.0, 1.0)]
+        let src = SCNGeometrySource(vertices: &verts, count: verts.count)
         
         let colorData = NSData(bytes: colors, length: sizeof(SCNVector3) * colors.count)
         let colorSource = SCNGeometrySource(data: colorData, semantic: SCNGeometrySourceSemanticColor, vectorCount: colors.count, floatComponents: true, componentsPerVector: 3, bytesPerComponent: sizeof(CGFloat), dataOffset: 0, dataStride: sizeof(SCNVector3))
         
-        
-        let indexes: [CInt] = [0,1,2,0,2,3,2,1,3] // Changed to CInt
-        
-
-        for var i=0; i < indexes.count; i=i+3 {
-            let a = verts[Int(indexes[i])]
-            let b = verts[Int(indexes[i+1])]
-            let c = verts[Int(indexes[i+2])]
-            let crossa = calcuN(a,B:b,C:c)
-            norms.append(crossa)
-        }
         let norm = SCNGeometrySource(normals: &norms, count: norms.count)
         
+        let indexes: [CInt] = [0,1,2,3,4,5,6,7,8,9,10,11] // Changed to CInt
         let dat  = NSData(
             bytes: indexes,
             length: sizeof(CInt) * indexes.count // Changed to size of CInt * count
@@ -90,7 +116,7 @@ class GameViewController: NSViewController {
         let ele = SCNGeometryElement(
             data: dat,
             primitiveType: .Triangles,
-            primitiveCount: 3,
+            primitiveCount: 4,
             bytesPerIndex: sizeof(CInt) // Changed to CInt
         )
         let geo = SCNGeometry(sources: [src, norm, colorSource], elements: [ele])
@@ -130,7 +156,7 @@ class GameViewController: NSViewController {
         
         // animate the 3d object
         let animation = CABasicAnimation(keyPath: "rotation")
-        animation.toValue = NSValue(SCNVector4: SCNVector4(x: CGFloat(0), y: CGFloat(1), z: CGFloat(0), w: CGFloat(M_PI)*2))
+        animation.toValue = NSValue(SCNVector4: SCNVector4(x: CGFloat(0), y: CGFloat(0), z: CGFloat(1), w: CGFloat(M_PI)*2))
         animation.duration = 20
         animation.repeatCount = MAXFLOAT //repeat forever
         ship.addAnimation(animation, forKey: nil)
