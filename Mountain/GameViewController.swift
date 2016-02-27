@@ -36,6 +36,46 @@ class GameViewController: NSViewController {
         return SCNVector3((A.x+B.x+C.x)/3,(A.y+B.y+C.y)/3,(A.z+B.z+C.z)/3)
     }
     
+    internal func maxL(A:CGFloat, B:CGFloat, C:CGFloat)->CGFloat
+    {
+        if A > B {
+            if A > C {
+                return A
+            }
+            return C
+        }
+        if B > C {
+            return B
+        }
+        return C
+    }
+    
+    internal func minL(A:CGFloat, B:CGFloat, C:CGFloat)->CGFloat
+    {
+        if A < B {
+            if A < C {
+                return A
+            }
+            return C
+        }
+        if B < C {
+            return B
+        }
+        return C
+    }
+    
+    internal func calcuL(A:SCNVector3, B:SCNVector3, C:SCNVector3)->SCNVector3
+    {
+        let x_max = maxL(A.x, B: B.x, C: C.x)
+        let x_min = minL(A.x, B: B.x, C: C.x)
+        let y_max = maxL(A.y, B: B.y, C: C.y)
+        let y_min = minL(A.y, B: B.y, C: C.y)
+        let z_max = maxL(A.z, B: B.z, C: C.z)
+        let z_min = minL(A.z, B: B.z, C: C.z)
+        
+        return SCNVector3((x_max-x_min),(y_max-y_min),(z_max-z_min))
+    }
+    
     internal func re(A:SCNVector3, B:SCNVector3, C:SCNVector3, levels: Int)
     {
         
@@ -59,11 +99,12 @@ class GameViewController: NSViewController {
             y = T.y
         }
         
-        let p1 = CGFloat((CGFloat(arc4random_uniform(40))+80.0)/100.0)
-        let p2 = CGFloat((CGFloat(arc4random_uniform(40))+80.0)/100.0)
+        let p1 = CGFloat((CGFloat(arc4random_uniform(40))-20.0)/100.0)
+        let p2 = CGFloat((CGFloat(arc4random_uniform(40))-20.0)/100.0)
         var P = calcuC(A,B:B,C:C)
-        P.x = P.x*p1
-        P.z = P.z*p2
+        let len = calcuL(A, B:B, C:C)
+        P.x = P.x + len.x*p1
+        P.z = P.z + len.z*p2
         P.y = CGFloat(y);
         
         if levels < 5 {
