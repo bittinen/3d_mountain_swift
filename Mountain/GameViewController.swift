@@ -3,9 +3,13 @@
 //  Mountain
 //
 //  Created by bittinen on 13/02/16.
-//  Copyright (c) 2016 Mika Leppinen. All rights reserved.
+//  Copyright (c) 2016 Mika Leppinen.
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTI
+//  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+//  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-
+// Warning: This was my fist Swift project
 import SceneKit
 import QuartzCore
 
@@ -18,7 +22,7 @@ class GameViewController: NSViewController {
     let size = 6
     var primitives = 0
     
-    
+    // Calculate Normal
     internal func calcuN(A:SCNVector3, B:SCNVector3, C:SCNVector3)->SCNVector3
     {
         let AB = SCNVector3(A.x-B.x,A.y-B.y,A.z-B.z)
@@ -31,11 +35,13 @@ class GameViewController: NSViewController {
         return cross
     }
     
+    // Calculate center point
     internal func calcuC(A:SCNVector3, B:SCNVector3, C:SCNVector3)->SCNVector3
     {
         return SCNVector3((A.x+B.x+C.x)/3,(A.y+B.y+C.y)/3,(A.z+B.z+C.z)/3)
     }
     
+    // Return max value
     internal func maxL(A:CGFloat, B:CGFloat, C:CGFloat)->CGFloat
     {
         if A > B {
@@ -50,6 +56,7 @@ class GameViewController: NSViewController {
         return C
     }
     
+    // Return min value
     internal func minL(A:CGFloat, B:CGFloat, C:CGFloat)->CGFloat
     {
         if A < B {
@@ -64,6 +71,7 @@ class GameViewController: NSViewController {
         return C
     }
     
+    // Calculate length of the sides
     internal func calcuL(A:SCNVector3, B:SCNVector3, C:SCNVector3)->SCNVector3
     {
         let x_max = maxL(A.x, B: B.x, C: C.x)
@@ -76,10 +84,13 @@ class GameViewController: NSViewController {
         return SCNVector3((x_max-x_min),(y_max-y_min),(z_max-z_min))
     }
     
+    // recursive function to calculate sub-triangle
     internal func re(A:SCNVector3, B:SCNVector3, C:SCNVector3, levels: Int)
     {
         
         var y = CGFloat(0)
+        
+        // bottom triangle
         if levels == 0 {
             y = CGFloat(size)
             verts.append(A)
@@ -99,6 +110,7 @@ class GameViewController: NSViewController {
             y = T.y
         }
         
+        // Calculate how much middle points are modified by random
         let p1 = CGFloat((CGFloat(arc4random_uniform(40))-20.0)/100.0)
         let p2 = CGFloat((CGFloat(arc4random_uniform(40))-20.0)/100.0)
         var P = calcuC(A,B:B,C:C)
@@ -107,6 +119,7 @@ class GameViewController: NSViewController {
         P.z = P.z + len.z*p2
         P.y = CGFloat(y);
         
+        // Number of recursion layers
         if levels < 5 {
             re(A, B:B, C:P, levels:(levels+1)) // A, B, P
             re(A, B:P, C:C, levels:(levels+1)) // A, C, P
@@ -165,26 +178,26 @@ class GameViewController: NSViewController {
         
         let norm = SCNGeometrySource(normals: &norms, count: norms.count)
         
-        var indexes = [CInt]() // Changed to CInt
+        var indexes = [CInt]() // Calculate triangle indexes
         for var i=0; i < verts.count; i++ {
             indexes.append(CInt(i))
         }
         
         let dat  = NSData(
             bytes: indexes,
-            length: sizeof(CInt) * indexes.count // Changed to size of CInt * count
+            length: sizeof(CInt) * indexes.count
         )
+        
         let ele = SCNGeometryElement(
             data: dat,
             primitiveType: .Triangles,
             primitiveCount: primitives,
-            bytesPerIndex: sizeof(CInt) // Changed to CInt
+            bytesPerIndex: sizeof(CInt)
         )
         let geo = SCNGeometry(sources: [src, norm, colorSource], elements: [ele])
-        //let geo = SCNGeometry(sources: [src, colorSource], elements: [ele])
         
         let nd = SCNNode(geometry: geo)
-        nd.name = "ship"
+        nd.name = "mountain"
         let scene = SCNScene()
         scene.rootNode.addChildNode(nd)
         
@@ -212,8 +225,8 @@ class GameViewController: NSViewController {
         ambientLightNode.light!.color = NSColor.darkGrayColor()
         scene.rootNode.addChildNode(ambientLightNode)
         
-        // retrieve the ship node
-        let ship = scene.rootNode.childNodeWithName("ship", recursively: true)!
+        // retrieve the mountain node
+        let ship = scene.rootNode.childNodeWithName("mountain", recursively: true)!
         
         // animate the 3d object
         let animation = CABasicAnimation(keyPath: "rotation")
@@ -234,5 +247,4 @@ class GameViewController: NSViewController {
         // configure the view
         self.gameView!.backgroundColor = NSColor.whiteColor()
     }
-    
 }
